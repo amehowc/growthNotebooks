@@ -1,0 +1,241 @@
+:root {
+  --border-width: 1px;
+  --handle-color: rgb(0, 0, 0);
+  --outline-color: white;
+  --track-color: white;
+  --canvas-background-color: #888;
+  --gui-background-color: #ababab;
+  --handle-size-small: 16px;
+  --handle-size-large: 36px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+#show-controls-button {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+}
+
+.gui-container {
+  padding: 15px;
+  max-width: 320px;
+  width: 30%;
+  background-color: var(--gui-background-color);
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  padding-bottom: 20px;
+}
+
+.title {
+  padding-top: 4px;
+  border-bottom: 1px solid black;
+  font-family: sans-serif;
+  font-size: 18px;
+}
+
+.gui-item {
+  border-top: 1px solid black;
+  width: 100%;
+  justify-content: space-between;
+  padding-bottom: 10px;
+}
+
+.gui-credits {
+  border-top: 1px solid black;
+  font-size: 14px;
+  bottom: 0;
+  font-family: sans-serif;
+}
+
+.textinput-elt {
+  width: calc(100% - 10px);
+}
+
+.gui-item-title {
+  font-family: monospace;
+}
+
+.canvas-container {
+  flex-grow: 1;
+  background-color: var(--canvas-background-color);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+canvas {
+  display: block;
+}
+
+.slider-elt {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 100px;
+  height: var(--border-width);
+  background: var(--outline-color);
+  outline: none;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.slider-elt::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: var(--handle-size-small);
+  height: var(--handle-size-small);
+  background: var(--handle-color);
+  border-radius: 50%;
+}
+
+.slider-elt::-moz-range-thumb {
+  width: var(--handle-size-small);
+  height: var(--handle-size-small);
+  background: var(--handle-color);
+  border-radius: 50%;
+}
+
+.slider-elt::-ms-thumb {
+  width: var(--handle-size-small);
+  height: var(--handle-size-small);
+  background: var(--handle-color);
+  border-radius: 50%;
+}
+
+.slider-elt::-moz-range-track {
+  width: 100%;
+  height: var(--border-width);
+  background: var(--outline-color);
+  border: none;
+}
+
+.slider-elt::-ms-track {
+  width: 100%;
+  height: var(--border-width);
+  background: var(--outline-color);
+  border: none;
+}
+
+/* Button Styles */
+.button-elt {
+  background: var(--outline-color);
+  border: var(--border-width) solid var(--handle-color);
+  outline: none;
+  padding: 6px;
+  margin: 2px;
+  transition: background-color 0.2s; /* Smooth color change on hover */
+}
+
+.button-elt:hover {
+  background: var(--handle-outline-color);
+  color: var(--handle-color);
+}
+
+.colorpicker-elt {
+  -webkit-appearance: none; /* Override default appearance for WebKit/Blink browsers */
+  appearance: none; /* Standard property to override default appearance */
+  border: 1px solid black; /* Black outline */
+  background-color: #333; /* Darker gray inner color */
+  width: 30px; /* Width of the color preview square */
+  height: 30px; /* Height of the color preview square */
+  padding: 0; /* Remove any default padding */
+  cursor: pointer; /* Pointer/hand icon when hovering over the color picker */
+  margin: 5px;
+}
+
+/* Hide the color input's default appearance and show only our custom styles */
+.colorpicker-elt::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.colorpicker-elt::-webkit-color-swatch {
+  border: none;
+  border-radius: 0;
+}
+
+a:link {
+  color: black;
+}
+
+/* visited link */
+a:visited {
+  color: black;
+}
+
+/* mouse over link */
+a:hover {
+  color: var(--outline-color);
+}
+
+/* selected link */
+a:active {
+  color: var(--outline-color);
+}
+
+@media (max-width: 1000px) {
+  body {
+    flex-direction: column; /* Changes the body's flex direction to row */
+  }
+
+  .gui-item {
+    padding-bottom: 5px;
+  }
+
+  .gui-container {
+    max-width: 100%;
+    padding: 25px;
+    width: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .gui-container > * {
+    flex-basis: calc(
+      50% - 10px
+    ); /* each child takes up about a third of the width, minus a little for some spacing */
+  }
+
+  .canvas-container {
+    height: 75%;
+  }
+  #show-controls-button {
+    width: 300px;
+    height: 100px;
+    font-size: 24px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .gui-item-title {
+    font-size: 30px;
+  }
+
+  .slider-elt::-webkit-slider-thumb {
+    width: var(--handle-size-large);
+    height: var(--handle-size-large);
+  }
+
+  .slider-elt::-moz-range-thumb {
+    width: var(--handle-size-large);
+    height: var(--handle-size-large);
+  }
+
+  .slider-elt::-ms-thumb {
+    width: var(--handle-size-large);
+    height: var(--handle-size-large);
+  }
+}
