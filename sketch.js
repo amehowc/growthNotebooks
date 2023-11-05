@@ -13,7 +13,7 @@ const sketch = (p5) => {
 	let font;
 	let vertexType;
 	let growingShapes;
-	let globalStepTime = 0.5;
+	let globalStepTime = 0.15;
 
 	//console.log(this)
 	let letters = [];
@@ -40,65 +40,94 @@ const sketch = (p5) => {
 		const canvasWidth = Math.floor(canvasRatio.width * scalefactor);
 		const canvasHeight = Math.floor(canvasRatio.height * scalefactor);
 
-		p5.createCanvas(canvasWidth, canvasHeight, p5.WEBGL, c);
+		p5.createCanvas(canvasWidth, canvasHeight, p5.P2D, c);
 
 		vertexType = new VertexType(p5, font);
 		growingShapes = new GrowingShapes(p5);
-
-		let shape = [];
-		let r = 100;
-		for (var a = 0; a < p5.TAU; a += p5.TAU / 100) {
-			const x = r * Math.cos(a);
-			const y = r * Math.sin(a);
-			shape.push({ x: x, y: y });
-		}
-		growingShapes.addShape(shape);
-
-		shape = [];
-		r = 50;
-		for (var a = p5.TAU; a > 0; a -= p5.TAU / 100) {
-			const x = r * Math.cos(a);
-			const y = r * Math.sin(a);
-			shape.push({ x: x, y: y });
-		}
-		growingShapes.addShape(shape);
-
 		dom.initializeGUI();
-		dom.textarea("text-area", { default: "A" }, () => {
+		dom.textarea("text-area", { default: "Ah!" }, () => {
 			const txt = gui["text-area"].value();
 			createLetterOutline(txt);
 		});
 		dom.slider("text-size", [0, 1, 0.5, 0.001]);
 		const txt = gui["text-area"].value();
 		createLetterOutline(txt);
+		console.log(vertexType);
+
+		vertexType.outlines.forEach((letter) => {
+			const { txt, shapes } = letter;
+
+			shapes.forEach((shape) => {
+				growingShapes.addShape(
+					shape.map((pt) => {
+						return {
+							x: pt.x,
+							y: pt.y,
+						};
+					})
+				);
+			});
+		});
+
+		// let shape = [];
+		// let r = 100;
+		// for (var a = 0; a < p5.TAU; a += p5.TAU / 10) {
+		// 	const x = r * Math.cos(a);
+		// 	const y = r * Math.sin(a);
+		// 	shape.push({ x: x, y: y });
+		// }
+		// growingShapes.addShape(shape);
+
+		// shape = [];
+		// r = 50;
+		// for (var a = p5.TAU; a > 0; a -= p5.TAU / 10) {
+
+		// 	const x = r * Math.cos(a);
+		// 	const y = r * Math.sin(a);
+		// 	shape.push({ x: x, y: y });
+		// }
+		// growingShapes.addShape(shape);
 	};
 
 	p5.draw = () => {
 		p5.background("blue");
+		p5.translate(p5.width / 2, p5.height / 2);
 		const txt = gui["text-area"].value();
 
 		if (
 			(p5.mouseIsPressed || p5.frameCount % 10 === 0) &&
-			growingShapes.world.length < 1000
+			growingShapes.world.length < 3000
 		) {
-			
-			growingShapes.shapes.forEach((shape) =>
+			growingShapes.shapes.forEach((shape) => {
 				shape.insertPoint(
 					false,
 					5,
 					5,
 					Math.floor(p5.random(shape.points.length - 2))
-				)
-			);
+				);
+
+				shape.insertPoint(
+					false,
+					5,
+					5,
+					Math.floor(p5.random(shape.points.length - 2))
+				);
+
+				shape.insertPoint(
+					false,
+					5,
+					5,
+					Math.floor(p5.random(shape.points.length - 2))
+				);
+			});
 		}
 
 		p5.push();
-		if (growingShapes.world.length < 1000) {
+		if (growingShapes.world.length < 3000) {
 			growingShapes.update(globalStepTime);
 		}
 		growingShapes.display();
 		p5.pop();
-
 	};
 
 	p5.windowResized = () => {

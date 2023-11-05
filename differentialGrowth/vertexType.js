@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.6,
+		details: 0.5,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
@@ -16,7 +16,7 @@ export default function VertexType(
 	this.minDist = Math.max(options.minDist, 10.0);
 	this.font = font;
 	this.p5 = p5;
-	this.defaultSize = 100;
+	this.defaultSize = 120;
 	this.leading = Math.min(options.leading, 0.0);
 	this.kerning = Math.min(options.kerning, 0.0);
 	// TO DO : word spacing
@@ -30,8 +30,11 @@ export default function VertexType(
 		if (text !== this.actualText) {
 			this.actualText = text;
 			this.characters = this.flatten(this.getCharactersPoints(this.actualText));
+			
 			this.lineBounds = this.computeBounds(this.lineBounds);
+			
 			this.outlines = this.createOutlines();
+			
 		}
 		return this;
 	};
@@ -41,7 +44,7 @@ export default function VertexType(
 		let advance = 0;
 		let whichLine = 0;
 		const numLines = lineWidths.length;
-
+		
 		const outlines = this.characters.map((letter, letterIndex) => {
 			const { line, groups, bounds, value } = letter;
 			if (line > whichLine) {
@@ -49,7 +52,7 @@ export default function VertexType(
 				whichLine = line;
 			}
 			const lineWidth = lineWidths[line];
-			//console.log(groups);
+			console.log(groups);
 			const shapes = groups.map((points, groupIndex) => {
 				const shape = points.map((p, i) => {
 					const cx = advance - lineWidth / 2;
@@ -58,10 +61,10 @@ export default function VertexType(
 						(line - (numLines - 1) / 2) * (lineHeight + this.leading);
 					return { x: p.x + cx, y: p.y + cy };
 				});
-				advance += bounds.w + bounds.advance;
+				
 				return shape;
 			});
-
+			advance += bounds.w + bounds.advance;
 			return { letter: value, shapes };
 		});
 		return outlines;
@@ -98,7 +101,7 @@ export default function VertexType(
 					const groups = this.splitOnDistance(points).sort(
 						(a, b) => calculateArea(a) + calculateArea(b)
 					);
-					// TODO: this could be done automatically with a sort on angle from the center and check if the indexOf(character) increases or decreases
+					// TODO: this could be done automatically with a sort on angle from the center and check if the angle increases or decreases
 					if (this.reverseGroupsDirections) {
 						for (let i = 1; i < groups.length; i++) {
 							groups[i].reverse();

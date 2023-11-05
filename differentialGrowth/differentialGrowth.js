@@ -9,7 +9,7 @@ function Point(p5, x, y, fixed = false) {
 	this.m = 0.5;
 	this.fixed = fixed;
 	this.drag = 0.8;
-	this.collisionDist = 35; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
+	this.collisionDist = 15; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
 
 	this.resetForces = function () {
 		this.force.mult(0);
@@ -36,7 +36,7 @@ function Point(p5, x, y, fixed = false) {
 			let rel = this.pos.copy().sub(p.pos.copy());
 			let d = rel.mag();
 			if (d < this.collisionDist) {
-				this.force.add(rel.mult(1 / (d + 0.001)));
+				this.force.add(rel.mult(1 / (d * .75 + 0.0001)));
 			}
 		}
 		//this.checkBoundaries();
@@ -198,15 +198,19 @@ function GrowingLine(p5, parent, closed = true) {
 	this.display = function (index) {
 		
 		if(index !== 0){
-            
-            this.p5.beginContour()
             //this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
+            this.p5.beginContour()
+            
+			
         }
 		//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
-		for (var p = 0; p < this.points.length; p++) {
-			this.p5.vertex(this.points[p].pos.x, this.points[p].pos.y);
+		for (var p = 0; p < this.points.length + 3; p++) {
+			//this.p5.curveVertex(this.points[p%this.points.length].pos.x, this.points[p%this.points.length].pos.y);
+			this.p5.vertex(this.points[p%this.points.length].pos.x, this.points[p%this.points.length].pos.y);
 		}
+		
         if(index !== 0){
+			
             this.p5.endContour()
         }
 		
