@@ -8,8 +8,9 @@ function Point(p5, x, y, fixed = false) {
 	this.force = this.p5.createVector(0, 0);
 	this.m = 0.5;
 	this.fixed = fixed;
-	this.drag = 0.8;
-	this.collisionDist = 15; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
+	this.drag = 0.9;
+
+	this.collisionDist = 20; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
 
 	this.resetForces = function () {
 		this.force.mult(0);
@@ -31,26 +32,34 @@ function Point(p5, x, y, fixed = false) {
 	};
 	// Not efficient, should only check n neighbour points
 	this.checkCollisions = function (points) {
-        this.checkBoundaries();
+		this.checkBoundaries();
 		for (let p of points) {
 			let rel = this.pos.copy().sub(p.pos.copy());
 			let d = rel.mag();
 			if (d < this.collisionDist) {
-				this.force.add(rel.mult(1 / (d * .75 + 0.0001)));
+				this.force.add(rel.mult(1 / (d * 0.75 + 0.01)));
 			}
 		}
 		//this.checkBoundaries();
 	};
 	this.checkBoundaries = function () {
-        const margins = 50
-        // console.log(this.pos)
+		const margins = 50;
+		// console.log(this.pos)
 
-        this.pos.x = this.p5.constrain(this.pos.x,- this.p5.width/2 + margins,this.p5.width/2 - margins,)
-        this.pos.y = this.p5.constrain(this.pos.y,- this.p5.height/2 + margins,this.p5.height/2 - margins,)
+		this.pos.x = this.p5.constrain(
+			this.pos.x,
+			-this.p5.width / 2 + margins,
+			this.p5.width / 2 - margins
+		);
+		this.pos.y = this.p5.constrain(
+			this.pos.y,
+			-this.p5.height / 2 + margins,
+			this.p5.height / 2 - margins
+		);
 
 		// if (
 		// 	this.pos.x > this.p5.width/2 - margins || this.pos.x < - this.p5.width/2 + margins ||
-        //     this.pos.y > this.p5.height/2 - margins || this.pos.y < - this.p5.height/2 + margins
+		//     this.pos.y > this.p5.height/2 - margins || this.pos.y < - this.p5.height/2 + margins
 		// ) {
 		// 	this.fix();
 		// }
@@ -77,16 +86,33 @@ function Spring(pointA, pointB, l, k = 0.9) {
 export default function GrowingShapes(p5) {
 	this.shapes = [];
 	this.world = [];
-    this.p5 = p5
-	const boundary = new Rectangle(0,0, p5.width, p5.height);
+	this.p5 = p5;
+	const boundary = new Rectangle(0, 0, p5.width, p5.height);
 	this.tree = new Quadtree(boundary, 40);
 
 	this.addShape = function (shape) {
-		if (shape.length > 2) {
+		if (shape.length > 0) {
 			const gl = new GrowingLine(p5, this);
 			gl.build(shape);
 			this.shapes.push(gl);
 		}
+	};
+
+	this.addShapes = function (_shapes) {
+		const { letter, shapes, group } = _shapes;
+
+		console.log(_shapes);
+
+		shapes.forEach((shape) => {
+			this.addShape(
+				shape.map((pt) => {
+					return {
+						x: pt.x * 3,
+						y: pt.y * 3,
+					};
+				})
+			);
+		});
 	};
 
 	this.getNeighbors = function (point) {
@@ -96,7 +122,7 @@ export default function GrowingShapes(p5) {
 	};
 
 	this.update = function (step) {
-		this.tree = new Quadtree(boundary, 40);
+		this.tree = new Quadtree(boundary, 20);
 		this.world.forEach((point) => {
 			const { pos } = point;
 			const np = new DataPoint(pos.x, pos.y, point);
@@ -106,14 +132,12 @@ export default function GrowingShapes(p5) {
 		this.shapes.forEach((shape) => shape.update(step));
 	};
 	this.display = function () {
+		this.p5.push();
+		this.p5.noStroke();
+		console.log(this.shapes);
+		this.shapes.forEach((shape, index) => shape.display(index));
 
-        this.p5.push()
-        this.p5.noStroke()
-        this.p5.beginShape()
-        this.shapes.forEach((shape,index) => shape.display(index));
-        this.p5.endShape()
-        this.p5.pop()
-		
+		this.p5.pop();
 	};
 }
 
@@ -124,7 +148,67 @@ function GrowingLine(p5, parent, closed = true) {
 	this.p5 = p5;
 	this.parent = parent;
 
+	function simplifyPath(points, epsilon = 5) {
+		// Find the point with the maximum distance from line between the start and end
+		let dmax = 0;
+		let index = 0;
+		let end = points.length - 1;
+	
+		for (let i = 1; i < end; i++) {
+			let d = pointLineDistance(points[i], points[0], points[end]);
+			if (d > dmax) {
+				index = i;
+				dmax = d;
+			}
+		}
+	
+		// If max distance is greater than epsilon, recursively simplify
+		if (dmax > epsilon) {
+			let recResults1 = simplifyPath(points.slice(0, index + 1), epsilon);
+			let recResults2 = simplifyPath(points.slice(index, end + 1), epsilon);
+	
+			// Build the final list
+			return recResults1.slice(0, recResults1.length - 1).concat(recResults2);
+		} else {
+			return [points[0], points[end]]; // Only endpoints
+		}
+	}
+	
+	function pointLineDistance(point, lineStart, lineEnd) {
+		let A = point.x - lineStart.x;
+		let B = point.y - lineStart.y;
+		let C = lineEnd.x - lineStart.x;
+		let D = lineEnd.y - lineStart.y;
+	
+		let dot = A * C + B * D;
+		let lenSq = C * C + D * D;
+		let param = -1;
+		if (lenSq !== 0) // Avoid division by zero
+			param = dot / lenSq;
+	
+		let xx, yy;
+	
+		if (param < 0) {
+			xx = lineStart.x;
+			yy = lineStart.y;
+		} else if (param > 1) {
+			xx = lineEnd.x;
+			yy = lineEnd.y;
+		} else {
+			xx = lineStart.x + param * C;
+			yy = lineStart.y + param * D;
+		}
+	
+		let dx = point.x - xx;
+		let dy = point.y - yy;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+	
+
 	this.build = function (shape) {
+		console.log(shape);
+		const simplifiedShape = simplifyPath(shape);
+		console.log(simplifiedShape);
 		shape.forEach((pt) => this.addPoint(pt.x, pt.y, false, 5));
 	};
 
@@ -177,15 +261,14 @@ function GrowingLine(p5, parent, closed = true) {
 	this.update = function (dt) {
 		var self = this;
 
-        //console.log(this.springs.length,this.points.length)
+		//console.log(this.springs.length,this.points.length)
 
 		for (var s = 0; s < this.springs.length; s++) {
 			this.springs[s].applyForces();
 		}
 
 		for (var p = 0; p < this.points.length; p++) {
-
-            //console.log(this.points[p].vel)
+			//console.log(this.points[p].vel)
 
 			const others = this.parent.getNeighbors(this.points[p]);
 			this.points[p].checkCollisions(others);
@@ -196,23 +279,24 @@ function GrowingLine(p5, parent, closed = true) {
 		}
 	};
 	this.display = function (index) {
-		
-		if(index !== 0){
-            //this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
-            this.p5.beginContour()
-            
-			
-        }
-		//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
-		for (var p = 0; p < this.points.length + 3; p++) {
-			//this.p5.curveVertex(this.points[p%this.points.length].pos.x, this.points[p%this.points.length].pos.y);
-			this.p5.vertex(this.points[p%this.points.length].pos.x, this.points[p%this.points.length].pos.y);
+		if (index !== 0) {
+			//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
+			//this.points.reverse()
+			//this.p5.beginContour()
 		}
-		
-        if(index !== 0){
-			
-            this.p5.endContour()
-        }
-		
+		//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
+
+		for (var p = 0; p < this.points.length; p++) {
+			//this.p5.curveVertex(this.points[p].pos.x, this.points[p].pos.y);
+			this.p5.vertex(
+				this.points[p % this.points.length].pos.x,
+				this.points[p % this.points.length].pos.y
+			);
+		}
+
+		if (index !== 0) {
+			//this.p5.endContour()
+			//this.points.reverse()
+		}
 	};
 }

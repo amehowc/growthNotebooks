@@ -15,6 +15,7 @@ const sketch = (p5) => {
 	let growingShapes;
 	let globalStepTime = 0.15;
 
+
 	//console.log(this)
 	let letters = [];
 	let bufferedWord = "";
@@ -41,7 +42,7 @@ const sketch = (p5) => {
 		const canvasHeight = Math.floor(canvasRatio.height * scalefactor);
 
 		p5.createCanvas(canvasWidth, canvasHeight, p5.P2D, c);
-
+		p5.frameRate(24)
 		vertexType = new VertexType(p5, font);
 		growingShapes = new GrowingShapes(p5);
 		dom.initializeGUI();
@@ -50,23 +51,17 @@ const sketch = (p5) => {
 			createLetterOutline(txt);
 		});
 		dom.slider("text-size", [0, 1, 0.5, 0.001]);
+		dom.button('reset-button','Reset',()=>{
+			const txt = gui["text-area"].value();
+			createLetterOutline(txt);
+		})
 		const txt = gui["text-area"].value();
 		createLetterOutline(txt);
-		console.log(vertexType);
+		//console.log(vertexType);
 
-		vertexType.outlines.forEach((letter) => {
-			const { txt, shapes } = letter;
-
-			shapes.forEach((shape) => {
-				growingShapes.addShape(
-					shape.map((pt) => {
-						return {
-							x: pt.x,
-							y: pt.y,
-						};
-					})
-				);
-			});
+		vertexType.outlines.forEach((outlines,group) => {
+			const { letter, shapes } = outlines;
+			growingShapes.addShapes({letter, shapes, group})
 		});
 
 		// let shape = [];
@@ -90,7 +85,7 @@ const sketch = (p5) => {
 	};
 
 	p5.draw = () => {
-		p5.background("blue");
+		p5.background("antiquewhite");
 		p5.translate(p5.width / 2, p5.height / 2);
 		const txt = gui["text-area"].value();
 
@@ -126,8 +121,13 @@ const sketch = (p5) => {
 		if (growingShapes.world.length < 3000) {
 			growingShapes.update(globalStepTime);
 		}
+		p5.fill(0)
+
+		p5.stroke(0)
 		growingShapes.display();
 		p5.pop();
+
+		p5.noLoop()
 	};
 
 	p5.windowResized = () => {

@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.5,
+		details: 0.75,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
@@ -30,11 +30,8 @@ export default function VertexType(
 		if (text !== this.actualText) {
 			this.actualText = text;
 			this.characters = this.flatten(this.getCharactersPoints(this.actualText));
-			
 			this.lineBounds = this.computeBounds(this.lineBounds);
-			
 			this.outlines = this.createOutlines();
-			
 		}
 		return this;
 	};
@@ -52,7 +49,7 @@ export default function VertexType(
 				whichLine = line;
 			}
 			const lineWidth = lineWidths[line];
-			console.log(groups);
+			
 			const shapes = groups.map((points, groupIndex) => {
 				const shape = points.map((p, i) => {
 					const cx = advance - lineWidth / 2;
