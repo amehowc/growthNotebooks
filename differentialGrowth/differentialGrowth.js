@@ -304,7 +304,7 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 
 		this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
 
-		for (var p = 0; p < this.points.length + 3; p++) {
+		for (var p = 0; p < this.points.length + 1; p++) {
 			this.p5.curveVertex(
 				this.points[p % this.points.length].pos.x,
 				this.points[p % this.points.length].pos.y
@@ -314,9 +314,9 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 			// 	this.points[p % this.points.length].pos.y
 			// );
 		}
-
+		
 		if (this.index !== 0) {
-			this.p5.endContour();
+			this.p5.endContour(this.p5.CLOSE);
 		}
 	};
 }

@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.15,
+		details: 0.05,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
