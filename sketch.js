@@ -122,12 +122,11 @@ const sketch = (p5) => {
 			growingShapes.update(globalStepTime);
 		}
 		p5.fill(0)
-
 		p5.stroke(0)
 		growingShapes.display();
 		p5.pop();
 
-		p5.noLoop()
+		//p5.noLoop()
 	};
 
 	p5.windowResized = () => {
