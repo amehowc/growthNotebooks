@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.05,
+		details: 0.01,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
@@ -12,11 +12,11 @@ export default function VertexType(
 		flattenOutput: true,
 	}
 ) {
-	this.details = Math.max(options.details, 0.6);
+	this.details = Math.max(options.details, 0.2);
 	this.minDist = Math.max(options.minDist, 10.0);
 	this.font = font;
 	this.p5 = p5;
-	this.defaultSize = 100;
+	this.defaultSize = 80;
 	this.leading = Math.min(options.leading, 0.0);
 	this.kerning = Math.min(options.kerning, 0.0);
 	// TO DO : word spacing

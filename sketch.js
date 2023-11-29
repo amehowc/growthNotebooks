@@ -9,11 +9,11 @@ const container = document.getElementById("canvas-container");
 
 const sketch = (p5) => {
 	const margins = 40;
-	const canvasRatio = { width: 360, height: 640 };
+	const canvasRatio = { width: 640, height: 640 };
 	let font;
 	let vertexType;
 	let growingShapes;
-	let globalStepTime = 0.15;
+	let globalStepTime = 0.55;
 
 
 	//console.log(this)
@@ -41,12 +41,12 @@ const sketch = (p5) => {
 		const canvasWidth = Math.floor(canvasRatio.width * scalefactor);
 		const canvasHeight = Math.floor(canvasRatio.height * scalefactor);
 
-		p5.createCanvas(canvasWidth, canvasHeight, p5.P2D, c);
+		p5.createCanvas(canvasWidth, canvasHeight, p5.WEBGL, c);
 		p5.frameRate(24)
 		vertexType = new VertexType(p5, font);
 		growingShapes = new GrowingShapes(p5);
 		dom.initializeGUI();
-		dom.textarea("text-area", { default: "Ah!" }, () => {
+		dom.textarea("text-area", { default: "A" }, () => {
 			const txt = gui["text-area"].value();
 			createLetterOutline(txt);
 		});
@@ -86,7 +86,7 @@ const sketch = (p5) => {
 
 	p5.draw = () => {
 		p5.background("antiquewhite");
-		p5.translate(p5.width / 2, p5.height / 2);
+		//p5.translate(p5.width / 2, p5.height / 2);
 		const txt = gui["text-area"].value();
 
 		if (
@@ -118,11 +118,13 @@ const sketch = (p5) => {
 		}
 
 		p5.push();
-		if (growingShapes.world.length < 3000) {
+		//if (growingShapes.world.length < 3000) {
 			growingShapes.update(globalStepTime);
-		}
-		p5.fill(0)
+		//}
+		//p5.noFill(0)
+		p5.noFill()
 		p5.stroke(0)
+		p5.strokeWeight(4)
 		growingShapes.display();
 		p5.pop();
 

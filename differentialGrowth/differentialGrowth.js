@@ -6,11 +6,11 @@ function Point(p5, x, y, fixed = false) {
 	this.vel = this.p5.createVector(0, 0);
 	this.acc = this.p5.createVector(0, 0);
 	this.force = this.p5.createVector(0, 0);
-	this.m = 0.5;
+	this.m = 1;
 	this.fixed = fixed;
-	this.drag = 0.9;
+	this.drag = 0.8;
 
-	this.collisionDist = 20; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
+	this.collisionDist = 15; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
 
 	this.resetForces = function () {
 		this.force.mult(0);
@@ -37,7 +37,7 @@ function Point(p5, x, y, fixed = false) {
 			let rel = this.pos.copy().sub(p.pos.copy());
 			let d = rel.mag();
 			if (d < this.collisionDist) {
-				this.force.add(rel.mult(1 / (d * 0.75 + 0.01)));
+				this.force.add(rel.mult(1 / (d + 0.1)));
 			}
 		}
 		//this.checkBoundaries();
@@ -107,8 +107,8 @@ export default function GrowingShapes(p5) {
 			this.addShape(
 				shape.map((pt) => {
 					return {
-						x: pt.x * 2,
-						y: pt.y * 2,
+						x: pt.x * 3.225,
+						y: pt.y * 3.225,
 					};
 				}),
 				index,
@@ -302,10 +302,10 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 			this.p5.beginContour();
 		}
 
-		this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
+		//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
 
 		for (var p = 0; p < this.points.length + 1; p++) {
-			this.p5.curveVertex(
+			this.p5.vertex(
 				this.points[p % this.points.length].pos.x,
 				this.points[p % this.points.length].pos.y
 			);
@@ -316,7 +316,7 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 		}
 		
 		if (this.index !== 0) {
-			this.p5.endContour(this.p5.CLOSE);
+			this.p5.endContour();
 		}
 	};
 }
