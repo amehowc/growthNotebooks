@@ -10,7 +10,7 @@ function Point(p5, x, y, fixed = false) {
 	this.fixed = fixed;
 	this.drag = 0.8;
 
-	this.collisionDist = 15; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
+	this.collisionDist = 20; // This affects a lot how smooth the result will be: 5=detailed, 20=smooth
 
 	this.resetForces = function () {
 		this.force.mult(0);
@@ -30,14 +30,16 @@ function Point(p5, x, y, fixed = false) {
 	this.fix = function () {
 		this.fixed = true;
 	};
-	// Not efficient, should only check n neighbour points
-	this.checkCollisions = function (points) {
+	
+	this.checkCollisions = function (points, fractor = 1., offset = 0.01) {
 		this.checkBoundaries();
+		//const txt = gui["text-area"].value();
+		//console.log(txt)
 		for (let p of points) {
 			let rel = this.pos.copy().sub(p.pos.copy());
 			let d = rel.mag();
 			if (d < this.collisionDist) {
-				this.force.add(rel.mult(1 / (d + 0.1)));
+				this.force.add(rel.mult(1 / (d * fractor + offset)));
 			}
 		}
 		//this.checkBoundaries();
@@ -90,30 +92,30 @@ export default function GrowingShapes(p5) {
 	const boundary = new Rectangle(0, 0, p5.width, p5.height);
 	this.tree = new Quadtree(boundary, 40);
 
-	this.addShape = function (shape, index, group) {
+	this.createShape = function (shape, index, group) {
 		if (shape.length > 0) {
 			const gl = new GrowingLine(p5, this, index, group);
 			gl.build(shape);
-			this.shapes.push(gl);
+			return gl
 		}
 	};
 
 	this.addShapes = function (_shapes) {
 		const { shapes, group } = _shapes;
-
-		console.log(_shapes);
-
 		shapes.forEach((shape, index) => {
-			this.addShape(
+			this.shapes.push(
+
+			this.createShape(
 				shape.map((pt) => {
 					return {
-						x: pt.x * 3.225,
-						y: pt.y * 3.225,
+						x: pt.x * 5,
+						y: pt.y * 5,
 					};
 				}),
 				index,
 				group
-			);
+			)
+			)
 		});
 	};
 

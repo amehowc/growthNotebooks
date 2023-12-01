@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.01,
+		details: 0.75,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
@@ -91,7 +91,7 @@ export default function VertexType(
 			this.lineBounds.push(this.font.textBounds(line, 0, 0, 100));
 			return line.split(/(\s+)/).map((word, wordIndex) => {
 				return word.split("").map((char, charIndex) => {
-					const charWidth = pg.textWidth(char);
+					
 					const options = { sampleFactor: this.details };
 					const points = ft.textToPoints(char, 0, 0, 100, options);
 					const bounds = ft.textBounds(char, 0, 0, 100);
