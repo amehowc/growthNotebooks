@@ -12,8 +12,8 @@ export default function VertexType(
 		flattenOutput: true,
 	}
 ) {
-	this.details = Math.max(options.details, 0.2);
-	this.minDist = Math.max(options.minDist, 10.0);
+	this.details = Math.max(options.details ?? 0.2, 0.2);
+	this.minDist = Math.max(options.minDist ?? 10, 10);
 	this.font = font;
 	this.p5 = p5;
 	this.defaultSize = 80;
@@ -41,7 +41,7 @@ export default function VertexType(
 		let advance = 0;
 		let whichLine = 0;
 		const numLines = lineWidths.length;
-		
+
 		const outlines = this.characters.map((letter, letterIndex) => {
 			const { line, groups, bounds, value } = letter;
 			if (line > whichLine) {
@@ -49,16 +49,16 @@ export default function VertexType(
 				whichLine = line;
 			}
 			const lineWidth = lineWidths[line];
-			
+
 			const shapes = groups.map((points, groupIndex) => {
 				const shape = points.map((p, i) => {
 					const cx = advance - lineWidth / 2;
 					const cy =
-						lineHeight / 4 +
+						lineHeight / 2 +
 						(line - (numLines - 1) / 2) * (lineHeight + this.leading);
 					return { x: p.x + cx, y: p.y + cy };
 				});
-				
+
 				return shape;
 			});
 			advance += bounds.w + bounds.advance;
@@ -91,13 +91,15 @@ export default function VertexType(
 			this.lineBounds.push(this.font.textBounds(line, 0, 0, 100));
 			return line.split(/(\s+)/).map((word, wordIndex) => {
 				return word.split("").map((char, charIndex) => {
-					
 					const options = { sampleFactor: this.details };
 					const points = ft.textToPoints(char, 0, 0, 100, options);
 					const bounds = ft.textBounds(char, 0, 0, 100);
-					const groups = this.splitOnDistance(points).sort(
-						(a, b) => calculateArea(a) + calculateArea(b)
-					);
+					const groups = this.splitOnDistance(points);
+					console.log(groups);
+					groups.sort((a, b) => {
+						calculateArea(a) + calculateArea(b);
+					});
+					console.log(groups);
 					// TODO: this could be done automatically with a sort on angle from the center and check if the angle increases or decreases
 					if (this.reverseGroupsDirections) {
 						for (let i = 1; i < groups.length; i++) {

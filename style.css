@@ -73,10 +73,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+ 
 }
 
-canvas {
+.p5canvas {
   display: block;
+  border: #000;
+  border-style: solid;
+  border-width: 10px;
 }
 
 .slider-elt {
