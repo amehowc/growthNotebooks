@@ -46,7 +46,6 @@ export const slidersComponent = (
     title.parent(container);
     sliderGroup.forEach((setting, id) => {
       const { name, settings, callback } = setting;
-      console.log(setting)
       const title = p5.createP(name);
       title.addClass("gui-item-title");
       const dom = p5.createSlider(...settings);

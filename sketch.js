@@ -15,19 +15,22 @@ const makeUI = () => {
 	dom.textarea("text-input", { default: "Bah" }, () => {
 		p5.resetSimulation();
 	});
-	// dom.sliders("text", [
-	// 	{
-	// 		name: "size",
-	// 		settings: [0, 1, 0.75, 0.001],
-	// 		callback: () => {
-	// 		},
-	// 	},
-	// 	{
-	// 		name: "details",
-	// 		settings: [0, 1, 0.1, 0.001],
-	// 		callback: () => {},
-	// 	},
-	// ]);
+	dom.sliders("text", [
+		{
+			name: "size",
+			settings: [1, 5, 3, 0.001],
+			callback: () => {
+				p5.resetSimulation();
+			},
+		},
+		{
+			name: "details",
+			settings: [0.2, 1, 0.5, 0.001],
+			callback: () => {
+				p5.resetSimulation();
+			},
+		},
+	]);
 	dom.sliders("curve", [
 		{
 			name: "springs",
@@ -106,7 +109,7 @@ const makeUI = () => {
 
 const sketch = (p5) => {
 	const margins = 40;
-	const canvasRatio = { width: 1200, height: 640 };
+	const canvasRatio = { width: 960, height: 640 };
 	let font;
 	let vertexType;
 	let growingShapes;
@@ -126,8 +129,10 @@ const sketch = (p5) => {
 	};
 
 	const createLetterOutline = (source) => {
-		if (letters.length === 0 || source !== bufferedWord) {
+		if (letters.length === 0) {
 			console.log("changed");
+			const details = gui["text-details"].value();
+			vertexType.details = details
 			vertexType.make(source).createOutlines();
 			bufferedWord = source;
 			growingShapes = new GrowingShapes(p5);

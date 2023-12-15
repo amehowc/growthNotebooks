@@ -4,7 +4,7 @@ export default function VertexType(
 	p5,
 	font,
 	options = {
-		details: 0.75,
+		details: 0.5,
 		minDist: 10,
 		leading: 0,
 		kerning: 0,
@@ -27,12 +27,11 @@ export default function VertexType(
 	this.actualText = "";
 
 	this.make = (text = "A") => {
-		if (text !== this.actualText) {
-			this.actualText = text;
-			this.characters = this.flatten(this.getCharactersPoints(this.actualText));
-			this.lineBounds = this.computeBounds(this.lineBounds);
-			this.outlines = this.createOutlines();
-		}
+		this.actualText = text;
+		this.characters = this.flatten(this.getCharactersPoints(this.actualText));
+		this.lineBounds = this.computeBounds(this.lineBounds);
+		this.outlines = this.createOutlines();
+
 		return this;
 	};
 
@@ -84,22 +83,23 @@ export default function VertexType(
 		// much faster on the 2D context in case of webgl
 		const pg = this.p5.createGraphics(1, 1);
 		this.lineBounds = [];
-
+		const textSize = 100
 		// text is split in lines/words/characters,... down to points using the built-in functions. The points are then broken down in groups using a dist() to figure out if the next point is far enough to be considered belonging to an another shape.
 		const positions = text.split("\n").map((line, lineIndex) => {
 			let advance = 0;
-			this.lineBounds.push(this.font.textBounds(line, 0, 0, 100));
+			
+			this.lineBounds.push(this.font.textBounds(line, 0, 0, textSize));
 			return line.split(/(\s+)/).map((word, wordIndex) => {
 				return word.split("").map((char, charIndex) => {
 					const options = { sampleFactor: this.details };
-					const points = ft.textToPoints(char, 0, 0, 100, options);
-					const bounds = ft.textBounds(char, 0, 0, 100);
+					const points = ft.textToPoints(char, 0, 0, textSize, options);
+					const bounds = ft.textBounds(char, 0, 0, textSize);
 					const groups = this.splitOnDistance(points);
-					
+
 					groups.sort((a, b) => {
 						calculateArea(a) + calculateArea(b);
 					});
-					
+
 					// TODO: this could be done automatically with a sort on angle from the center and check if the angle increases or decreases
 					if (this.reverseGroupsDirections) {
 						for (let i = 1; i < groups.length; i++) {

@@ -27,7 +27,7 @@ export const initializeGUI = (sketch, name = "Controls") => {
   const elt = p5.createDiv();
   elt.addClass("gui-container");
   elt.id("gui");
-  const container = p5.createDiv();
+  const container = p5.createDiv('Growth v 0.0');
   container.addClass("gui-item");
   const pTitle = p5.createP(name);
   pTitle.addClass("title");

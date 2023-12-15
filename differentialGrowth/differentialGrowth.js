@@ -109,14 +109,15 @@ export default function GrowingShapes(p5) {
 
 	this.addShapes = function (_shapes) {
 		const { shapes, group } = _shapes;
-		shapes.forEach((shape, index) => {
+		const scale = gui["text-size"].value(); 
+		shapes.forEach((shape, index,arr) => {
 			this.shapes.push(
 
 			this.createShape(
 				shape.map((pt) => {
 					return {
-						x: pt.x * 5,
-						y: pt.y * 5,
+						x: ~~(pt.x * scale),
+						y: ~~(pt.y * scale),
 					};
 				}),
 				index,
