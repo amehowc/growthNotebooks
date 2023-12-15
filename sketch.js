@@ -225,22 +225,21 @@ const sketch = (p5) => {
 					}
 				}
 			} else {
-				
+				const shape = p5.random(growingShapes.shapes)
 				for (let i = 0; i < numToAdd; i++) {
-					_shape.insertPoint(
+					shape.insertPoint(
 						false,
 						5,
 						5,
-						Math.floor(p5.random(_shape.points.length - 2))
+						Math.floor(p5.random(shape.points.length - 2))
 					);
 				}
 			}
 		}
-		let shape = undefined
+		
 		if (useMouse && !isDone) {
-			if(!shape){shape = p5.random(growingShapes.shapes);}
-			console.log(shape)
-			generate(shape)
+			
+			generate()
 		} else if (continuous && !isDone && tick && !useMouse) {
 			generate()
 		}
