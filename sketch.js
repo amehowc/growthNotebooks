@@ -10,6 +10,100 @@ const container = document.getElementById("canvas-container");
 const maxExports = 100;
 let actualNumExports = 0;
 
+const makeUI = () => {
+	dom.initializeGUI();
+	dom.textarea("text-input", { default: "Bah" }, () => {
+		p5.resetSimulation();
+	});
+	// dom.sliders("text", [
+	// 	{
+	// 		name: "size",
+	// 		settings: [0, 1, 0.75, 0.001],
+	// 		callback: () => {
+	// 		},
+	// 	},
+	// 	{
+	// 		name: "details",
+	// 		settings: [0, 1, 0.1, 0.001],
+	// 		callback: () => {},
+	// 	},
+	// ]);
+	dom.sliders("curve", [
+		{
+			name: "springs",
+			settings: [0, 1, 0.8, 0.001],
+			callback: () => {},
+		},
+		{
+			name: "speed",
+			settings: [0, 1, 0.35, 0.001],
+			callback: () => {},
+		},
+		{
+			name: "repulsion",
+			settings: [0, 2, 1, 0.01],
+			callback: () => {},
+		},
+		{
+			name: "radius",
+			settings: [10, 50, 25, 0.01],
+			callback: () => {},
+		},
+		{
+			name: "damping",
+			settings: [0, 10, 1, 0.01],
+			callback: () => {},
+		},
+		{
+			name: "drag",
+			settings: [0, 1, .8, 0.01],
+			callback: () => {},
+		},
+		{
+			name: "friction",
+			settings: [0, 1, 1, 0.01],
+			callback: () => {},
+		},
+		// {
+		// 	name: "friction",
+		// 	settings: [0, 10, 1, 0.01],
+		// 	callback: () => {},
+		// },
+	]);
+	
+	dom.sliders("container", [
+		{
+			name: "width",
+			settings: [0, 1, 0.1, 0.001],
+			callback: () => {},
+		},
+		{
+			name: "height",
+			settings: [0, 1, 0.1, 0.001],
+			callback: () => {},
+		},
+	]);
+	dom.button("reset", "Reset", () => {
+		p5.resetSimulation();
+	});
+	dom.button("export", "Export SVG", () => {
+		p5.save("growth-type");
+	});
+	dom.checkbox("continuous-export", "Continuous Export", false, () => {
+		//resetSimulation();
+		console.log(`Exported :${actualNumExports} of ${maxExports}`);
+	});
+	dom.checkbox(
+		"continuous-export-reset",
+		"Continuous Export + Reset",
+		false,
+		() => {
+			p5.resetSimulation();
+			console.log(`Exported :${actualNumExports} of ${maxExports}`);
+		}
+	);
+};
+
 const sketch = (p5) => {
 	const margins = 40;
 	const canvasRatio = { width: 1200, height: 640 };
@@ -31,7 +125,6 @@ const sketch = (p5) => {
 		return mx > 0 && mx < p5.width && my > 0 && p5.height;
 	};
 
-	
 	const createLetterOutline = (source) => {
 		if (letters.length === 0 || source !== bufferedWord) {
 			console.log("changed");
@@ -45,40 +138,26 @@ const sketch = (p5) => {
 		}
 	};
 
-	const resetSimulation = () => {
-		const txt = gui["text-area"].value();
+	p5.resetSimulation = () => {
+		const txt = gui["text-input"].value();
 		createLetterOutline(txt);
 	};
 
 	p5.setup = () => {
-		
 		const canvasWidth = Math.floor(canvasRatio.width * 1);
 		const canvasHeight = Math.floor(canvasRatio.height * 1);
 
 		p5.createCanvas(canvasWidth, canvasHeight, p5.SVG);
 		const container = document.getElementById("canvas-container");
 		const canvas = document.getElementById("defaultCanvas0");
-		canvas.style.borderStyle = 'solid'
+		canvas.style.borderStyle = "solid";
 		container.appendChild(canvas);
 
 		p5.frameRate(24);
 		vertexType = new VertexType(p5, font);
 		growingShapes = new GrowingShapes(p5);
-		dom.initializeGUI();
-		dom.textarea("text-area", { default: "Bah" }, () => {
-			resetSimulation();
-		});
-		dom.slider("text-size", [0, 1, 0.5, 0.001]);
-		dom.button("reset-button", "Reset", () => {
-			resetSimulation();
-		});
-		dom.button("export-svg-button", "Export SVG", () => {
-			p5.save();
-		});
-		dom.checkbox("continuous-export", "Continuous Export", false, () => {
-			resetSimulation();
-		});
-		const txt = gui["text-area"].value();
+		makeUI();
+		const txt = gui["text-input"].value();
 		createLetterOutline(txt);
 		//console.log(vertexType);
 
@@ -103,17 +182,16 @@ const sketch = (p5) => {
 	};
 
 	p5.draw = () => {
-		p5.clear()
-		
-		p5.translate(p5.width / 2, p5.height / 2);
-		
-		const txt = gui["text-area"].value();
+		p5.clear();
 
+		p5.translate(p5.width / 2, p5.height / 2);
+
+		const speed = gui["curve-speed"].value();
 		if (
 			((p5.mouseIsPressed && mouseIsOverCanvas()) || p5.frameCount % 10 === 0) &&
-			growingShapes.world.length < 3000 && p5.frameCount > 10
+			growingShapes.world.length < 3000 &&
+			p5.frameCount > 10
 		) {
-			
 			growingShapes.shapes.forEach((shape) => {
 				shape.insertPoint(
 					false,
@@ -122,28 +200,26 @@ const sketch = (p5) => {
 					Math.floor(p5.random(shape.points.length - 2))
 				);
 			});
-
-			
 		}
 
 		p5.push();
 		if (growingShapes.world.length < 3000) {
-			growingShapes.update(globalStepTime);
+			growingShapes.update(speed);
 		}
 
-		//console.log(growingShapes.shapes)
-		// p5.scale(3)
-		//p5.noFill(0)
 		p5.fill(0);
-		// p5.stroke(0)
-		// p5.strokeWeight(4)
 		growingShapes.display();
 		p5.pop();
-		if (gui["continuous-export"].checked() && actualNumExports < maxExports && p5.frameCount > 10 &&  p5.frameCount % 10 === 0 ) {
+		if (
+			(gui["continuous-export"].checked() ||
+				gui["continuous-export-reset"].checked()) &&
+			actualNumExports < maxExports &&
+			p5.frameCount > 10 &&
+			p5.frameCount % 10 === 0
+		) {
 			p5.save();
 			actualNumExports++;
 		}
-		//p5.noLoop()
 	};
 
 	// p5.windowResized = () => {

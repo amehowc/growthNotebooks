@@ -20,11 +20,15 @@ function Point(p5, x, y, fixed = false) {
 		this.force.add(f);
 	};
 	this.updatePos = function (dt) {
+
+		const m = Math.max(0.00001,gui["curve-friction"].value());
+		const drag = gui["curve-drag"].value();
+
 		if (!this.fixed) {
-			this.acc = this.force.div(this.m);
+			this.acc = this.force.div(m);
 			this.vel.add(this.acc.copy().mult(dt));
 			this.pos.add(this.vel.copy().mult(dt));
-			this.vel.mult(this.drag);
+			this.vel.mult(drag);
 		}
 	};
 	this.fix = function () {
@@ -33,30 +37,32 @@ function Point(p5, x, y, fixed = false) {
 	
 	this.checkCollisions = function (points, fractor = 1., offset = 0.01) {
 		this.checkBoundaries();
+		const radius = gui["curve-radius"].value();
 		//const txt = gui["text-area"].value();
 		//console.log(txt)
 		for (let p of points) {
 			let rel = this.pos.copy().sub(p.pos.copy());
 			let d = rel.mag();
-			if (d < this.collisionDist) {
+			if (d < radius) {
 				this.force.add(rel.mult(1 / (d * fractor + offset)));
 			}
 		}
 		//this.checkBoundaries();
 	};
 	this.checkBoundaries = function () {
-		const margins = 50;
-		// console.log(this.pos)
+		const marginsW = gui["container-width"].value() * this.p5.width * .5;
+		const marginsH = gui["container-height"].value() * this.p5.height * .5;
+		
 
 		this.pos.x = this.p5.constrain(
 			this.pos.x,
-			-this.p5.width / 2 + margins,
-			this.p5.width / 2 - margins
+			-this.p5.width / 2 + marginsW,
+			this.p5.width / 2 - marginsW
 		);
 		this.pos.y = this.p5.constrain(
 			this.pos.y,
-			-this.p5.height / 2 + margins,
-			this.p5.height / 2 - margins
+			-this.p5.height / 2 + marginsH,
+			this.p5.height / 2 - marginsH
 		);
 
 		// if (
@@ -73,7 +79,8 @@ function Spring(pointA, pointB, l, k = 0.9) {
 	this.pointB = pointB;
 	this.restLen = l;
 	this.k = k;
-	this.applyForces = function () {
+	this.applyForces = function (k = 0.9) {
+		if(this.k !== k) this.k = k
 		let vecAB = this.pointB.pos.copy().sub(this.pointA.pos.copy());
 		let forceMag = this.k * (this.restLen - vecAB.mag());
 		let forceAB = vecAB.setMag(forceMag);
@@ -287,14 +294,18 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 	};
 	this.update = function (dt) {
 		let self = this;
+		const k = gui["curve-springs"].value();
 		for (var s = 0; s < this.springs.length; s++) {
-			this.springs[s].applyForces();
+			this.springs[s].applyForces(k);
 		}
+
+		const repulsion = gui["curve-repulsion"].value();
+		const damping = gui["curve-damping"].value();
 
 		for (var p = 0; p < this.points.length; p++) {
 			//console.log(this.points[p].vel)
 			const others = this.parent.getNeighbors(this.points[p]);
-			this.points[p].checkCollisions(others);
+			this.points[p].checkCollisions(others,repulsion,damping);
 			this.points[p].updatePos(dt);
 			this.points[p].resetForces();
 		}
@@ -304,9 +315,7 @@ function GrowingLine(p5, parent, index, group = 0, closed = true) {
 			this.p5.beginContour();
 		}
 
-		//this.p5.vertex(this.points[0].pos.x, this.points[0].pos.y);
-
-		for (var p = 0; p < this.points.length + 1; p++) {
+		for (var p = 0; p < this.points.length; p++) {
 			this.p5.vertex(
 				this.points[p % this.points.length].pos.x,
 				this.points[p % this.points.length].pos.y

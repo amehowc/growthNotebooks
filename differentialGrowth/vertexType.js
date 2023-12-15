@@ -95,11 +95,11 @@ export default function VertexType(
 					const points = ft.textToPoints(char, 0, 0, 100, options);
 					const bounds = ft.textBounds(char, 0, 0, 100);
 					const groups = this.splitOnDistance(points);
-					console.log(groups);
+					
 					groups.sort((a, b) => {
 						calculateArea(a) + calculateArea(b);
 					});
-					console.log(groups);
+					
 					// TODO: this could be done automatically with a sort on angle from the center and check if the angle increases or decreases
 					if (this.reverseGroupsDirections) {
 						for (let i = 1; i < groups.length; i++) {

@@ -37,7 +37,7 @@ export const slidersComponent = (
   ]
 ) => {
   const elt = document.getElementById("gui");
-  if (!gui[name]) {
+  if (!gui[nameGroup]) {
     const container = p5.createDiv();
     container.addClass("gui-item");
     container.addClass("sliders");
@@ -46,6 +46,7 @@ export const slidersComponent = (
     title.parent(container);
     sliderGroup.forEach((setting, id) => {
       const { name, settings, callback } = setting;
+      console.log(setting)
       const title = p5.createP(name);
       title.addClass("gui-item-title");
       const dom = p5.createSlider(...settings);

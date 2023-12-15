@@ -12,7 +12,7 @@ export const checkboxComponent = (
     const container = p5.createDiv();
     container.addClass("gui-item");
     container.addClass("checkbox");
-    const title = p5.createP(name);
+    const title = p5.createP(innerText);
     title.addClass("gui-item-title");
     const dom = p5.createCheckbox('', settings).changed(callback);
     dom.addClass("checkbox-el");

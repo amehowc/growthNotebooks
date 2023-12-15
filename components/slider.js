@@ -17,11 +17,16 @@ export const sliderComponent = (
     const title = p5.createP(name);
     title.addClass("gui-item-title");
     title.parent(container);
+
     const dom = p5.createSlider(...settings).changed(callback);
     dom.addClass("slider-elt");
     dom.style("width", "100%");
     dom.parent(title);
     container.parent(elt);
+    // const value = p5.createP('');
+    // value.addClass("gui-item-value");
+    // value.parent(container);
+    
     // if (callback) {
     //   if (callbacks.length) {
     //     callbacks.forEach((callback) => {
