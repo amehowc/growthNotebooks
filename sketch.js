@@ -212,18 +212,7 @@ const sketch = (p5) => {
 		const tick = p5.frameCount % 10 === 0;
 		const isDone = growingShapes.world.length >= 3000;
 
-		if (useMouse && !isDone) {
-			for (let shape of growingShapes.shapes) {
-				for (let i = 0; i <= numToAdd; i++) {
-					shape.insertPoint(
-						false,
-						5,
-						5,
-						Math.floor(p5.random(shape.points.length - 2))
-					);
-				}
-			}
-		} else if (continuous && !isDone && tick) {
+		const generate =(_shape)=>{
 			if (generateAll) {
 				for (let shape of growingShapes.shapes) {
 					for (let i = 0; i <= numToAdd; i++) {
@@ -236,16 +225,24 @@ const sketch = (p5) => {
 					}
 				}
 			} else {
-				const shape = p5.random(growingShapes.shapes);
+				
 				for (let i = 0; i < numToAdd; i++) {
-					shape.insertPoint(
+					_shape.insertPoint(
 						false,
 						5,
 						5,
-						Math.floor(p5.random(shape.points.length - 2))
+						Math.floor(p5.random(_shape.points.length - 2))
 					);
 				}
 			}
+		}
+		let shape = undefined
+		if (useMouse && !isDone) {
+			if(!shape){shape = p5.random(growingShapes.shapes);}
+			console.log(shape)
+			generate(shape)
+		} else if (continuous && !isDone && tick && !useMouse) {
+			generate()
 		}
 
 		p5.push();
