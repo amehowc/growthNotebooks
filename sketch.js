@@ -31,6 +31,19 @@ const makeUI = () => {
 			},
 		},
 	]);
+	dom.checkbox("continuous-generate", "Continuous Generation", true, () => {
+		//resetSimulation();
+	});
+	dom.checkbox("generate-all", "Generate in all shapes", false, () => {
+		//resetSimulation();
+	});
+	dom.sliders("generation", [
+		{
+			name: "count",
+			settings: [1, 10, 1, 1],
+			callback: () => {},
+		},
+	]);
 	dom.sliders("curve", [
 		{
 			name: "springs",
@@ -59,7 +72,7 @@ const makeUI = () => {
 		},
 		{
 			name: "drag",
-			settings: [0, 1, .8, 0.01],
+			settings: [0, 1, 0.8, 0.01],
 			callback: () => {},
 		},
 		{
@@ -73,7 +86,7 @@ const makeUI = () => {
 		// 	callback: () => {},
 		// },
 	]);
-	
+
 	dom.sliders("container", [
 		{
 			name: "width",
@@ -132,7 +145,7 @@ const sketch = (p5) => {
 		if (letters.length === 0) {
 			console.log("changed");
 			const details = gui["text-details"].value();
-			vertexType.details = details
+			vertexType.details = details;
 			vertexType.make(source).createOutlines();
 			bufferedWord = source;
 			growingShapes = new GrowingShapes(p5);
@@ -192,23 +205,51 @@ const sketch = (p5) => {
 		p5.translate(p5.width / 2, p5.height / 2);
 
 		const speed = gui["curve-speed"].value();
-		if (
-			((p5.mouseIsPressed && mouseIsOverCanvas()) || p5.frameCount % 10 === 0) &&
-			growingShapes.world.length < 3000 &&
-			p5.frameCount > 10
-		) {
-			growingShapes.shapes.forEach((shape) => {
-				shape.insertPoint(
-					false,
-					5,
-					5,
-					Math.floor(p5.random(shape.points.length - 2))
-				);
-			});
+		const generateAll = gui["generate-all"].checked();
+		const continuous = gui["continuous-generate"].checked();
+		const numToAdd = gui["generation-count"].value();
+		const useMouse = p5.mouseIsPressed && mouseIsOverCanvas();
+		const tick = p5.frameCount % 10 === 0;
+		const isDone = growingShapes.world.length >= 3000;
+
+		if (useMouse && !isDone) {
+			for (let shape of growingShapes.shapes) {
+				for (let i = 0; i <= numToAdd; i++) {
+					shape.insertPoint(
+						false,
+						5,
+						5,
+						Math.floor(p5.random(shape.points.length - 2))
+					);
+				}
+			}
+		} else if (continuous && !isDone && tick) {
+			if (generateAll) {
+				for (let shape of growingShapes.shapes) {
+					for (let i = 0; i <= numToAdd; i++) {
+						shape.insertPoint(
+							false,
+							5,
+							5,
+							Math.floor(p5.random(shape.points.length - 2))
+						);
+					}
+				}
+			} else {
+				const shape = p5.random(growingShapes.shapes);
+				for (let i = 0; i < numToAdd; i++) {
+					shape.insertPoint(
+						false,
+						5,
+						5,
+						Math.floor(p5.random(shape.points.length - 2))
+					);
+				}
+			}
 		}
 
 		p5.push();
-		if (growingShapes.world.length < 3000) {
+		if (!!growingShapes.world.length < 3000) {
 			growingShapes.update(speed);
 		}
 
